@@ -22,7 +22,7 @@ Downloading
 -----------
 
 Note: Intermediate nameservers may cache your requests. Please be respectful and
-query the authoratative nameserver directly!
+query the authoratative nameserver directly using the `--nameserver` option!
 
     $ ruby dnsfs.rb --download --nameserver dnsfs.defuse.ca dnsfs.defuse.ca
     1. manifesto.txt (size: 3880 bytes)
