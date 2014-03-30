@@ -52,6 +52,6 @@ How It Works
 
 For each file K in 1..N, there are a set of TXT entries.
 
-- f*K*info: File K's name and size.
-- f*K*p*P*: Part *P* of file *K* base64-encoded. Last one is `~EOF~`.
-- f*N+1*info: End of list marker: `~EOL~`
+- f<i>K</i>info: File K's name and size.
+- f<i>K</i>p<i>P</i>: Part *P* of file *K* base64-encoded. Last one is `~EOF~`.
+- f<i>N+1</i>info: End of list marker: `~EOL~`
