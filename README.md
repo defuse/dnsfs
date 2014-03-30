@@ -15,8 +15,7 @@ NOTE: I'm pretty sure something like this has been done before... I just wanted
 to write it myself and couldn't find the reference. Please let me know of
 similar things!
 
-Related Work
-------------
+**Related Work**
 
 - http://www.aldeid.com/wiki/File-transfer-via-DNS
 
