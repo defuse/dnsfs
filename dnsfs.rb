@@ -31,6 +31,11 @@ optparse = OptionParser.new do |opts|
     end
   end
 
+  $options[:nameserver] = nil
+  opts.on('-n', '--nameserver NS', 'Nameserver to use for downloading') do |ns|
+    $options[:nameserver] = ns
+  end
+
 end
 
 begin
@@ -56,7 +61,6 @@ if ARGV.length != 1
   STDERR.puts optparse
   exit
 end
-
 
 def generateEntries(source_dir)
   file_number = 1
@@ -99,6 +103,7 @@ end
 
 def interactiveDownload(domain)
   file_info = interactiveSelectFile(domain)
+  return if file_info.nil?
   dest_path = File.join("/tmp/", file_info[:name])
 
   if File.exist?(dest_path)
@@ -109,10 +114,11 @@ def interactiveDownload(domain)
   File.open(dest_path, 'w') do |f|
     part = 1
     while part_data = getFilePart(domain, file_info[:number], part)
-      puts "."
+      print "."
       f.write(part_data)
       part += 1
     end
+    puts ""
   end
 
   puts "File written to #{dest_path}."
@@ -126,20 +132,26 @@ def interactiveSelectFile(domain)
     file_number += 1
   end
 
-  files.each_with_index do |file, index|
-    puts "#{index}. #{file[:name]} (size: #{file[:size]} bytes)"
-  end
+  if files.empty?
+    puts "No files there."
+    return nil
+  else
+    files.each_with_index do |file, index|
+      puts "#{index+1}. #{file[:name]} (size: #{file[:size]} bytes)"
+    end
 
-  puts "Which one?"
-  index = STDIN.gets.strip.to_i
-  # FIXME
-  return files[index]
+    puts "Which one?"
+    index = STDIN.gets.strip.to_i
+    if index < 1 || index > files.count
+      puts "Bad selection."
+      return nil
+    end
+    return files[index-1]
+  end
 end
 
 def getFileInfo(domain, file_number)
-  # FIXME -- parameterize the nameserver
-  # FIXME handle dns errors
-  dns = Resolv::DNS.new(:nameserver => "192.99.8.82")
+  dns = getResolver()
   info = dns.getresource("f#{file_number}info." + domain, Resolv::DNS::Resource::IN::TXT)
   info = info.data()
   file = {}
@@ -154,18 +166,28 @@ def getFileInfo(domain, file_number)
     return nil
   end
   return file
+rescue Resolv::ResolvError
+  return nil
 end
 
 def getFilePart(domain, file_number, part_number)
-  # FIXME -- parameterize the nameserver (see above)
-  # FIXME handle dns errors
-  dns = Resolv::DNS.new(:nameserver => "192.99.8.82")
+  dns = getResolver()
   info = dns.getresource("f#{file_number}p#{part_number}." + domain, Resolv::DNS::Resource::IN::TXT)
   info = info.data()
   if info == "~EOF~"
     return nil
   else
     return Base64.strict_decode64(info)
+  end
+rescue Resolv::ResolvError
+  return nil
+end
+
+def getResolver
+  if $options[:nameserver]
+    return Resolv::DNS.new(:nameserver => $options[:nameserver])
+  else
+    return Resolv::DNS.new()
   end
 end
 
