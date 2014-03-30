@@ -71,6 +71,7 @@ def generateEntries(source_dir)
       file_number += 1
     end
   end
+  # FIXME: parameterize the 'dnsfs'
   puts "f#{file_number}info.dnsfs IN TXT \"~EOL~\""
 end
 
@@ -180,6 +181,7 @@ def getFilePart(domain, file_number, part_number)
     return Base64.strict_decode64(info)
   end
 rescue Resolv::ResolvError
+  # FIXME: should expect a random error once in a while... maybe retry?
   return nil
 end
 
