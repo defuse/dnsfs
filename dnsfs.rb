@@ -36,6 +36,11 @@ optparse = OptionParser.new do |opts|
     $options[:nameserver] = ns
   end
 
+  $options[:subdomain] = "dnsfs"
+  opts.on('-s', '--subdomain SUB', 'Filesystem subdomain') do |sub|
+    $options[:subdomain] = sub
+  end
+
 end
 
 begin
@@ -72,7 +77,7 @@ def generateEntries(source_dir)
     end
   end
   # FIXME: parameterize the 'dnsfs'
-  puts "f#{file_number}info.dnsfs IN TXT \"~EOL~\""
+  puts "f#{file_number}info.#{$options[:subdomain]} IN TXT \"~EOL~\""
 end
 
 def generateEntriesForFile(n, path)
@@ -85,7 +90,7 @@ def generateEntriesForFile(n, path)
   name = File.basename(path)
 
   # Directory entry
-  puts "f#{n}info.dnsfs IN TXT \"Name: #{name} / Size: #{size}\""
+  puts "f#{n}info.#{$options[:subdomain]} IN TXT \"Name: #{name} / Size: #{size}\""
 
   part = 1
   part_size = 189
@@ -93,12 +98,12 @@ def generateEntriesForFile(n, path)
     while part_contents = f.read(part_size)
       # We use encode64 instead of strict_encode64 for backwards compatibility.
       part_base64 = Base64.encode64(part_contents).gsub("\n",'')
-      puts "f#{n}p#{part}.dnsfs IN TXT \"#{part_base64}\""
+      puts "f#{n}p#{part}.#{$options[:subdomain]} IN TXT \"#{part_base64}\""
       part += 1
     end
   end
 
-  puts "f#{n}p#{part}.dnsfs IN TXT \"~EOF~\""
+  puts "f#{n}p#{part}.#{$options[:subdomain]} IN TXT \"~EOF~\""
 
   return true;
 end
