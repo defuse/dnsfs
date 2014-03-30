@@ -50,7 +50,7 @@ Generating
 How It Works
 ============
 
-For each file K in 1..N, there are a set of TXT entries.
+For each file K in 1..N, there are a set of TXT entries:
 
 - f<i>K</i>info: File K's name and size.
 - f<i>K</i>p<i>P</i>: Part *P* of file *K* base64-encoded. Last one is `~EOF~`.
