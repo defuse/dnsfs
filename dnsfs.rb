@@ -91,7 +91,8 @@ def generateEntriesForFile(n, path)
   part_size = 189
   File.open(path, 'r') do |f|
     while part_contents = f.read(part_size)
-      part_base64 = Base64.strict_encode64(part_contents)
+      # We use encode64 instead of strict_encode64 for backwards compatibility.
+      part_base64 = Base64.encode64(part_contents).gsub("\n",'')
       puts "f#{n}p#{part}.dnsfs IN TXT \"#{part_base64}\""
       part += 1
     end
@@ -178,7 +179,7 @@ def getFilePart(domain, file_number, part_number)
   if info == "~EOF~"
     return nil
   else
-    return Base64.strict_decode64(info)
+    return Base64.decode64(info)
   end
 rescue Resolv::ResolvError
   # FIXME: should expect a random error once in a while... maybe retry?
