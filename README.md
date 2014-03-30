@@ -54,9 +54,13 @@ Downloading Without Ruby
 ------------------------
 
 The naming convention makes it easy to download a file with a standard shell
-`/bin/sh` command.
+`/bin/sh` command:
 
     for i in `seq 21`; do dig f1p$i.dnsfs.defuse.ca TXT|grep TXT|grep '"'|cut -d '"' -f 2|base64 --decode; done|less
+
+Or, without using `dig`:
+
+    for i in `seq 21`; do host -t TXT f1p$i.dnsfs.defuse.ca|cut -d '"' -f 2|base64 --decode; done|less
 
 All you have to do is replace `f1` with the file number you want and `seq 21`
 with the number of parts in the file (the ceiling of the file size divided by
