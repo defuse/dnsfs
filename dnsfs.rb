@@ -117,6 +117,7 @@ def interactiveDownload(domain)
     part = 1
     while part_data = getFilePart(domain, file_info[:number], part)
       print "."
+      STDOUT.flush
       f.write(part_data)
       part += 1
     end
