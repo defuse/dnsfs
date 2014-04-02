@@ -110,7 +110,9 @@ end
 def interactiveDownload(domain)
   file_info = interactiveSelectFile(domain)
   return if file_info.nil?
-  dest_path = File.absolute_path(File.join(".", file_info[:name]))
+
+  # basename here ensures the path is not outside of the cwd.
+  dest_path = File.basename(file_info[:name])
 
   File.open(dest_path, File::CREAT|File::EXCL|File::WRONLY, 0600) do |f|
     part = 1
@@ -164,8 +166,8 @@ def getFileInfo(domain, file_number)
   if info == "~EOL~"
     return nil
   end
-  if /Name: (.+) \/ Size: (\d+)/.match(info)
-    file[:name] = $1
+  if /Name: ([^~\/\\]+) \/ Size: (\d+)/.match(info)
+    file[:name] = File.basename($1)
     file[:size] = $2.to_i
   else
     return nil
