@@ -107,12 +107,46 @@ def generateEntriesForFile(n, path)
   return true;
 end
 
+# Replaces dangerous characters in 'filename' with 'X'.
+def safe_encode_path(filename)
+  # Everything except control characters and /, {, \, ?, >, <, :, *, !
+  # Source: urlchr_table in the wget source code.
+  safe_chars = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+               '0123456789' +
+               '`~@#$%^&()_+-=[]}|;\'",.').split('')
+
+  if filename == "."
+    return "X"
+  elsif filename == ".."
+    return "XX"
+  else
+    safe_filename = ''
+    filename.each_char do |char|
+      if safe_chars.include? char
+        safe_filename += char
+      else
+        safe_filename += "X"
+      end
+    end
+
+    # Actual limits are probably bigger than this, but Ruby doesn't make it easy
+    # to figure out what they are, so let's be safe.
+    if safe_filename.length > 100
+      return safe_filename[0,100]
+    else
+      return safe_filename
+    end
+  end
+end
+
 def interactiveDownload(domain)
   file_info = interactiveSelectFile(domain)
   return if file_info.nil?
 
-  # basename here ensures the path is not outside of the cwd.
-  dest_path = File.basename(file_info[:name])
+  # The filename can be any string, need to make it safe.
+  dest_path = safe_encode_path(file_info[:name])
+  # Just in case the encoding is broken/insecure.
+  dest_path = File.basename(dest_path)
 
   File.open(dest_path, File::CREAT|File::EXCL|File::WRONLY, 0600) do |f|
     part = 1
@@ -166,8 +200,8 @@ def getFileInfo(domain, file_number)
   if info == "~EOL~"
     return nil
   end
-  if /Name: ([^~\/\\]+) \/ Size: (\d+)/.match(info)
-    file[:name] = File.basename($1)
+  if /Name: (.+) \/ Size: (\d+)/.match(info)
+    file[:name] = $1
     file[:size] = $2.to_i
   else
     return nil
