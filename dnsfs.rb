@@ -76,7 +76,6 @@ def generateEntries(source_dir)
       file_number += 1
     end
   end
-  # FIXME: parameterize the 'dnsfs'
   puts "f#{file_number}info.#{$options[:subdomain]} IN TXT \"~EOL~\""
 end
 
