@@ -111,7 +111,7 @@ end
 def interactiveDownload(domain)
   file_info = interactiveSelectFile(domain)
   return if file_info.nil?
-  dest_path = File.join("/tmp/", file_info[:name])
+  dest_path = File.absolute_path(File.join(".", file_info[:name]))
 
   File.open(dest_path, File::CREAT|File::EXCL|File::WRONLY, 0600) do |f|
     part = 1
@@ -146,7 +146,7 @@ def interactiveSelectFile(domain)
       puts "#{index+1}. #{file[:name]} (size: #{file[:size]} bytes)"
     end
 
-    puts "Which one?"
+    puts "Which one? (it will be saved to the current working directory)"
     index = STDIN.gets.strip.to_i
     if index < 1 || index > files.count
       puts "Bad selection."
