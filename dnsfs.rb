@@ -113,12 +113,7 @@ def interactiveDownload(domain)
   return if file_info.nil?
   dest_path = File.join("/tmp/", file_info[:name])
 
-  if File.exist?(dest_path)
-    puts "ERROR: File already exists in #{dest_path}.\n"
-    return
-  end
-
-  File.open(dest_path, 'w') do |f|
+  File.open(dest_path, File::CREAT|File::EXCL|File::WRONLY, 0600) do |f|
     part = 1
     while part_data = getFilePart(domain, file_info[:number], part)
       print "."
@@ -130,6 +125,9 @@ def interactiveDownload(domain)
   end
 
   puts "File written to #{dest_path}."
+
+rescue Errno::EEXIST
+    puts "ERROR: File already exists in #{dest_path}.\n"
 end
 
 def interactiveSelectFile(domain)
